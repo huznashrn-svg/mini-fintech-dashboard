@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mini Fintech Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Header -->
+    <header class="header">
+        <div>
+            <h1>💰 Mini Fintech Dashboard</h1>
+            <p class="subtitle">Track your finances with confidence</p>
+        </div>
+
+        <a href="/add" class="btn">
+            + Add Transaction
+        </a>
+    </header>
+
+    <!-- Summary Cards -->
+    <section class="cards">
+
+        <div class="card income-card">
+            <p>Total Income</p>
+            <h2>₹{{ "%.2f"|format(total_income) }}</h2>
+        </div>
+
+        <div class="card expense-card">
+            <p>Total Expense</p>
+            <h2>₹{{ "%.2f"|format(total_expense) }}</h2>
+        </div>
+
+        <div class="card balance-card">
+            <p>Net Balance</p>
+            <h2>₹{{ "%.2f"|format(net_balance) }}</h2>
+        </div>
+
+        <div class="card top-card">
+            <p>Top Category</p>
+            <h2>{{ top_category }}</h2>
+        </div>
+
+    </section>
+
+    <!-- Insight Card -->
+    <section class="insight-card">
+        <h3>💡 Smart Insight</h3>
+        <p>{{ insight }}</p>
+    </section>
+
+    <!-- Pie Chart -->
+    <section class="chart-card">
+
+        <h2>Spending by Category</h2>
+
+        {% if chart_labels %}
+            <canvas id="expenseChart"></canvas>
+        {% else %}
+            <div class="empty-chart">
+                <p>Add expense transactions to visualize your spending.</p>
+            </div>
+        {% endif %}
+
+    </section>
+
+    <!-- Filters -->
+    <section class="filter-card">
+
+        <h2>Filters</h2>
+
+        <form method="GET" class="filters">
+
+            <select name="category">
+
+                <option value="">All Categories</option>
+
+                {% set categories = [
+                    'Food',
+                    'Transport',
+                    'Bills',
+                    'Shopping',
+                    'Entertainment',
+                    'Health',
+                    'Salary',
+                    'Freelance',
+                    'Investment'
+                ] %}
+
+                {% for cat in categories %}
+                    <option value="{{ cat }}"
+                        {% if selected_category == cat %}selected{% endif %}>
+                        {{ cat }}
+                    </option>
+                {% endfor %}
+
+            </select>
+
+            <input
+                type="date"
+                name="start_date"
+                value="{{ start_date }}">
+
+            <input
+                type="date"
+                name="end_date"
+                value="{{ end_date }}">
+
+            <button type="submit" class="btn">
+                Apply Filters
+            </button>
+
+        </form>
+
+    </section>
+
+    <!-- Transactions -->
+    <section class="transactions">
+
+        <div class="section-header">
+            <h2>Recent Transactions</h2>
+        </div>
+
+        {% if transactions %}
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Amount</th>
+                    <th>Note</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for transaction in transactions %}
+
+                <tr>
+
+                    <td>{{ transaction['date'] }}</td>
+
+                    <td>{{ transaction['category'] }}</td>
+
+                    <td>
+                        <span class="{{ transaction['type'] }}">
+                            {{ transaction['type'].title() }}
+                        </span>
+                    </td>
+
+                    <td>
+                        ₹{{ "%.2f"|format(transaction['amount']) }}
+                    </td>
+
+                    <td>
+                        {{ transaction['note'] or '-' }}
+                    </td>
+
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        {% else %}
+
+        <div class="empty-state">
+
+            <h3>No transactions yet</h3>
+
+            <p>
+                Start your financial journey by adding your first transaction.
+            </p>
+
+            <a href="/add" class="btn">
+                Add Transaction
+            </a>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% if chart_labels %}
+
+<script>
+    const chartLabels = {{ chart_labels | tojson }};
+    const chartValues = {{ chart_values | tojson }};
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="{{ url_for('static', filename='js/chart.js') }}"></script>
+
+{% endif %}
+
+</body>
+</html>
