@@ -33,6 +33,7 @@ def init_db():
 
 @app.route('/')
 def dashboard():
+    init_db()
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -160,7 +161,7 @@ def dashboard():
 
 @app.route('/add', methods=['GET', 'POST'])
 def add_transaction():
-
+    init_db()
     if request.method == 'POST':
         amount = float(request.form['amount'])
         category = request.form['category']
